@@ -1,6 +1,7 @@
 package com.example.joel.locationmaps;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -27,6 +28,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
@@ -105,16 +107,50 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mGps = findViewById(R.id.ic_gps);
 
         placeAutocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+        placeAutocompleteFragment.setFilter(new AutocompleteFilter.Builder().setCountry("GH").build());
 
         placeAutocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
-            public void onPlaceSelected(Place place) {
+            public void onPlaceSelected(final Place place) {
                 final LatLng latLngloc = place.getLatLng();
                 if (marker != null){
                     marker.remove();
                 }
                 marker = mMap.addMarker(new MarkerOptions().position(latLngloc).title(place.getName().toString()));
                 moveCamera(latLngloc,DEFAULT_ZOOM,"currentLocation");
+
+                Double latitudeData = place.getLatLng().latitude;
+                Double longitudeData = place.getLatLng().longitude;
+                //place.getName();
+
+                final String  latData = Double.toString(latitudeData);
+                final String  longData = Double.toString(longitudeData);
+
+
+                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                    @Override
+                    public boolean onMarkerClick(Marker marker) {
+
+
+                        Intent resultIntent = new Intent();
+                        resultIntent.putExtra("placeName",place.getName());
+                        resultIntent.putExtra("result",latData+","+longData);
+                        setResult(RESULT_OK,resultIntent);
+                        finish();
+
+
+                        return false;
+                    }
+                });
+
+
+
+
+
+
+
+                Toast.makeText(MapActivity.this, "coordinates" +latitudeData+ ","+longitudeData, Toast.LENGTH_SHORT).show();
+
             }
 
             @Override
