@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">LocationMaps</string>
+
+    <string name="google_maps_API_KEY">AIzaSyCeNYWDDrAViXpqTu8yCtThm5mjpCuEn-I</string>
+    <string name="title_activity_maps">Map</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
