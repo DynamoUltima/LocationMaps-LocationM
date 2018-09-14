@@ -38,6 +38,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -92,14 +93,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private PlaceAutocompleteAdapter mPlaceAutocompleteAdapter;
     private GoogleApiClient mGoogleApiClient;
-
     private PlaceAutocompleteFragment placeAutocompleteFragment;
+    Marker marker;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        mSearchText = findViewById(R.id.input_search);
+       // mSearchText = findViewById(R.id.input_search);
         mGps = findViewById(R.id.ic_gps);
 
         placeAutocompleteFragment = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.autocomplete_fragment);
@@ -107,8 +109,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         placeAutocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
-                geoLocate();
-
+                final LatLng latLngloc = place.getLatLng();
+                if (marker != null){
+                    marker.remove();
+                }
+                marker = mMap.addMarker(new MarkerOptions().position(latLngloc).title(place.getName().toString()));
+                moveCamera(latLngloc,DEFAULT_ZOOM,"currentLocation");
             }
 
             @Override
@@ -116,6 +122,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
             }
         });
+
 
         getLocationPermission();
         // getDeviceLocation();
@@ -137,22 +144,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 LAT_LNG_BOUNDS,
                 null);
 
-        mSearchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH
-                        || actionId == EditorInfo.IME_ACTION_DONE
-                        || keyEvent.getAction() == KeyEvent.ACTION_DOWN
-                        || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER) {
-
-                    //execute our method for searching
-                    geoLocate();
-
-                }
-                return false;
-            }
-
-        });
+//        mSearchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            @Override
+//            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+//                if (actionId == EditorInfo.IME_ACTION_SEARCH
+//                        || actionId == EditorInfo.IME_ACTION_DONE
+//                        || keyEvent.getAction() == KeyEvent.ACTION_DOWN
+//                        || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER) {
+//
+//                    //execute our method for searching
+//                    geoLocate();
+//
+//                }
+//                return false;
+//            }
+//
+//        });
         mGps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -202,7 +209,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                             Log.d(TAG, "onComplete: found location!");
                             Location currentLocation = (Location) task.getResult();
 
-                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),DEFAULT_ZOOM,"My Location");
+                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+                                    DEFAULT_ZOOM,"My Location");
 
 
 
@@ -229,6 +237,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 .title(title);
         mMap.addMarker(options);
         }
+
         hideSoftKeyboard();
     }
 
